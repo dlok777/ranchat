@@ -3,6 +3,10 @@ import "./globals.css";
 import User from "../lib/Class/User";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
+import { SocketProvider } from '@/components/socket-provider'
+import { Inter } from 'next/font/google'
+// tailwind
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,8 +30,17 @@ export default async function RootLayout({
         </main>
         <Footer />
       </body>
+
       
 
     </html>
   );
+
+  //return (
+  //  <html lang="en">
+  //    <SocketProvider>
+  //      <body className={inter.className}>{children}</body>
+  //    </SocketProvider>
+  //  </html>
+  //);
 }

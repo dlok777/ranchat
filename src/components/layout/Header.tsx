@@ -4,11 +4,8 @@ import "tailwindcss/tailwind.css";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faList } from '@fortawesome/free-solid-svg-icons';
 import Navbar from "./Navbar";
 import SearchBox from "./SearchBox";
-
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState<boolean>(false);

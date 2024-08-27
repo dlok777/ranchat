@@ -52,7 +52,7 @@ export default function Header() {
         </div>
         <div className="flex justify-end items-center p-5">
           <div className="flex">
-            <Link href="#" className="after:content-['|'] after:px-2 last:after:content-none text-slate-500 text-sm"><span>로그인</span></Link>
+            <Link href="/login" className="after:content-['|'] after:px-2 last:after:content-none text-slate-500 text-sm"><span>로그인</span></Link>
             <Link href="#" className="after:content-['|'] after:px-2 last:after:content-none text-slate-500 text-sm"><span>회원가입</span></Link>
             <Link href="#" className="after:content-['|'] after:px-2 last:after:content-none text-slate-500 text-sm"><span>고객센터</span></Link>
           </div>
@@ -60,7 +60,9 @@ export default function Header() {
 
         <div className="grid grid-cols-3 gap-4 items-center p-5">
           <div className="flex justify-start">
-            <Image src="/logo.png" alt="Logo" width={100} height={46} layout="intrinsic" />
+            <Link href="/">
+              <Image src="/logo.png" alt="Logo" width={100} height={46} layout="intrinsic" />
+            </Link>
           </div>
 
           <div className="flex justify-center">

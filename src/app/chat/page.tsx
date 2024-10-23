@@ -1,34 +1,34 @@
 "use client";
- 
+
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import {useSocket} from "@/components/socket-provider";
- 
+
 interface message {
     userId: number;
     content: string;
 }
- 
+
 const ChatPage = () => {
     const [messages, setMessages] = useState<message[]>([]);
     const [currentMessage, setCurrentMessage] = useState('');
     const { socket, isConnected } = useSocket();
     const [userId, setUserId] = useState(+new Date())
- 
+
     useEffect(() => {
         if (!socket) {
             return;
         }
- 
+
         socket.on('message', (data: any) => {
             setMessages((messages) => [...messages, ...[data]]);
         });
- 
+
         return () => {
             socket.off('message');
         };
     }, [socket, messages]);
- 
+
     const sendMessage = async (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault()
         await axios.post('/api/chat', {
@@ -37,7 +37,7 @@ const ChatPage = () => {
         });
         setCurrentMessage('');
     };
- 
+
     return (
         <div className="rounded-xl border bg-card text-card-foreground shadow w-[300px] mx-auto">
             <div className="p-6">

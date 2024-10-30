@@ -1,8 +1,15 @@
 import type { Metadata } from "next";
 import "./globals.css";
+
+/** DB CLASS START */
 import User from "../lib/Class/User";
+/** DB CLASS END */
+
+/** Component START */
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
+/** Component END */
+
 import { SocketProvider } from '@/components/socket-provider'
 import { Inter } from 'next/font/google'
 // tailwind

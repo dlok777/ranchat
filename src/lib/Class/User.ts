@@ -19,6 +19,17 @@ class User {
     }
   }
 
+  static async getUserByUserId(userId: string): Promise<any | null> {
+    const sql = `SELECT u.* FROM ${process.env.DB_PREFIX}users u WHERE u.user_id = ?`;
+    try {
+      const result = await executeQuery(sql, [userId]);
+      return result[0] || null;
+    } catch (err) {
+      console.error('Error in getUserByUserId:', err);
+      throw err;
+    }
+  }
+
   static async getUsers(
     wheres: string[] = [],
     orderby: string[] = [],

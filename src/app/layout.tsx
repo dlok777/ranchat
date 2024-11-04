@@ -32,7 +32,7 @@ export default async function RootLayout({
       
       <body>
         <Header />
-        <main>
+        <main className="container mx-auto mb-8 mt-10" style={{height:"500px"}}>
           {children}
         </main>
         <Footer />

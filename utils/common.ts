@@ -1,13 +1,12 @@
 // utils/handleError.ts
 import { NextApiResponse } from 'next';
 
-// api 기본 응답 코드
-export const retCode = {
+export const createRetCode = () => ({
   "result" : "success",
   "retCode": 200,
   "retMsg": "API 호출 성공",
   "data": {}
-}
+});
 
 export const handleError = (res: NextApiResponse, error: any) => {
   console.error('API Error:', error);

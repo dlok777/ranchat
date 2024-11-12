@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import axios from "axios";
 
 export default function SignUp() {
   const [userId, setUserId] = useState<string>("");
@@ -22,10 +23,9 @@ export default function SignUp() {
     // api call
     let url = "api/user/check/userId?userId=" + userId;
     try {
-      let res = await fetch(url);
+      let ret = await axios.get(url);
 
-      let json = await res.json();
-      if(json.data.retCode === 200) {
+      if(ret.data.retCode === 200) {
         alert("이미 사용중인 아이디입니다.");
       }
       else {
@@ -77,21 +77,18 @@ export default function SignUp() {
     let url = "api/user/signup";
 
     try {
-      let res = await fetch(url, {
-        method: "POST",
-        body: JSON.stringify(params),
+      let ret = await axios.post(url, params, {
         headers: {
           "Content-Type": "application/json"
         }
       });
 
-      let json = await res.json();
-      if(json.retCode === 200) {
+      if(ret.data.retCode === 200) {
         alert("회원가입이 완료되었습니다.");
       }
       else {
-        console.error(json);
-        alert(json.retMsg);
+        console.error(ret.data);
+        alert(ret.data.retMsg);
       }
     }
     catch(err) {

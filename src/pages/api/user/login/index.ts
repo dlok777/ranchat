@@ -3,13 +3,14 @@ import User from '@/lib/Class/User';
 import { handleError } from '@/utils/common';
 import { checkedParams, createRetCode } from '@/utils/common';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { useRouter } from 'next/navigation';
 
 const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
   const retCode = createRetCode();
-  let requiredParams = ['userId', 'username', 'password', 'passwordConfirm', 'nickname', 'phoneNumber'];
+  let requiredParams = ['userId', 'password'];
   
   let checked = await checkedParams(req.body, requiredParams);
-  
   
   if(!checked) {
     retCode.result = "fail";
@@ -18,42 +19,41 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.json(retCode);
   }
 
-  const { userId, password, passwordConfirm, nickname, phoneNumber } = req.body;
-
-  const checkUser = await User.getUserByUserId(userId);
-  if(checkUser) {
-    retCode.result = "fail";
-    retCode.retCode = 409;
-    retCode.retMsg = "이미 사용중인 아이디입니다.";
-    return res.json(retCode);
-  }
-
-  if(password !== passwordConfirm) {
-    retCode.result = "fail";
-    retCode.retCode = 400;
-    retCode.retMsg = "비밀번호가 일치하지 않습니다.";
-    return res.json(retCode);
-  }
-
-  const saltRounds = 14;
-  let params = {
-    user_id: userId,
-    user_pass: bcrypt.hashSync(password, saltRounds),
-    nickname: nickname,
-    phone: phoneNumber
-  }
+  const { userId, password } = req.body;
 
   try {
-    let newUser = await User.setUser(params);
-    if(!newUser) {
+    const user = await User.getUserByUserId(userId);
+
+    if(!user) {
       retCode.result = "fail";
-      retCode.retCode = 500;
-      retCode.retMsg = "사용자 추가에 실패했습니다.";
+      retCode.retCode = 404;
+      retCode.retMsg = "사용자 정보가 없습니다.";
       return res.json(retCode);
     }
 
-    retCode.data = newUser;
-    res.status(201).json(retCode);
+    const isPasswordValid = await bcrypt.compare(password, user.user_pass);
+
+    if(!isPasswordValid) {
+      retCode.result = "fail";
+      retCode.retCode = 401;
+      retCode.retMsg = "비밀번호가 일치하지 않습니다.";
+      return res.json(retCode);
+    }
+
+    const token = jwt.sign({ userId: user.user_id }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+
+    retCode.result = "success";
+    retCode.data = {
+      token,
+      user: {
+        userId: user.user_id,
+        nickname: user.nickname,
+        phoneNumber: user.phone_number,
+        profileImage: user.profile_image
+      }
+    }
+
+    return res.json(retCode);
   } catch (error) {
     handleError(res, error);
   }

@@ -6,10 +6,24 @@ import Image from "next/image";
 import { useState } from 'react';
 import Navbar from "./Navbar";
 import SearchBox from "./SearchBox";
+import { loginCheck, logout } from '@/utils/auth';
+import { useRouter } from 'next/navigation';
+
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-
+  const [isLogin, setIsLogin] = useState<boolean>(loginCheck());
+  const router = useRouter();
+  const btnLogout = async () => {
+    let result = await logout();
+    if(result.success) {
+      setIsLogin(false);
+      router.push('/login');
+    }
+    else {
+      alert("로그아웃 실패");
+    }
+  }
 
   const toggleDrawer = () => {
     setIsOpen(!isOpen);
@@ -49,8 +63,14 @@ export default function Header() {
         </div>
         <div className="flex justify-end items-center p-5">
           <div className="flex">
-            <Link href="/login" className="after:content-['|'] after:px-2 last:after:content-none text-slate-500 text-sm"><span>로그인</span></Link>
-            <Link href="#" className="after:content-['|'] after:px-2 last:after:content-none text-slate-500 text-sm"><span>회원가입</span></Link>
+            {isLogin ? (
+              <Link href="#" className="after:content-['|'] after:px-2 last:after:content-none text-slate-500 text-sm" onClick={btnLogout}><span>로그아웃</span></Link>
+            ) : (
+              <>
+                <Link href="/login" className="after:content-['|'] after:px-2 last:after:content-none text-slate-500 text-sm"><span>로그인</span></Link>
+                <Link href="#" className="after:content-['|'] after:px-2 last:after:content-none text-slate-500 text-sm"><span>회원가입</span></Link>
+              </>
+            )}
             <Link href="#" className="after:content-['|'] after:px-2 last:after:content-none text-slate-500 text-sm"><span>고객센터</span></Link>
           </div>
         </div>

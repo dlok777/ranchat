@@ -5,12 +5,12 @@ import { ConfigType } from '@/utils/config';
 import config from '@/utils/config';
 import { login, loginCheck } from '@/utils/auth';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/store/authStore';
 
 const Login = () => {
-  
+  const { setAuth } = useAuthStore();
   const [userId, setUserId] = useState('');
   const [password, setPassword] = useState('');
-  const [isLogin, setIsLogin] = useState<boolean>(loginCheck());
   const router = useRouter();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -24,7 +24,7 @@ const Login = () => {
       // API 호출 등의 로그인 처리
       const loginResult = await login(userId, password);
       if(loginResult.success) {
-        setIsLogin(true);
+        setAuth(true);
         router.push(loginResult.redirect || '/');
       }
       else {

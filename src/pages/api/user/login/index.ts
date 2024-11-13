@@ -44,7 +44,8 @@ const handlePost = async (req: NextApiRequest, res: NextApiResponse) => {
 
     retCode.result = "success";
     retCode.data = {
-      token,
+      accessToken: token,
+      refreshToken: token,
       user: {
         userId: user.user_id,
         nickname: user.nickname,

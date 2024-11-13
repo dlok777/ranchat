@@ -3,21 +3,29 @@
 import "tailwindcss/tailwind.css";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from "./Navbar";
 import SearchBox from "./SearchBox";
-import { loginCheck, logout } from '@/utils/auth';
+import { logout } from '@/utils/auth';
 import { useRouter } from 'next/navigation';
-
+import { useAuthStore } from '@/store/authStore';
+import axios from 'axios';
 
 export default function Header() {
+  // checkAuth 호출 시 토큰 만료 시 자동 로그아웃 처리
+  const { isLogin, setAuth, checkAuth } = useAuthStore();
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      await checkAuth();
+    };
+    checkLoginStatus();
+  }, [checkAuth]);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [isLogin, setIsLogin] = useState<boolean>(loginCheck());
   const router = useRouter();
   const btnLogout = async () => {
     let result = await logout();
     if(result.success) {
-      setIsLogin(false);
+      setAuth(false);
       router.push('/login');
     }
     else {
@@ -68,7 +76,7 @@ export default function Header() {
             ) : (
               <>
                 <Link href="/login" className="after:content-['|'] after:px-2 last:after:content-none text-slate-500 text-sm"><span>로그인</span></Link>
-                <Link href="#" className="after:content-['|'] after:px-2 last:after:content-none text-slate-500 text-sm"><span>회원가입</span></Link>
+                <Link href="/signup" className="after:content-['|'] after:px-2 last:after:content-none text-slate-500 text-sm"><span>회원가입</span></Link>
               </>
             )}
             <Link href="#" className="after:content-['|'] after:px-2 last:after:content-none text-slate-500 text-sm"><span>고객센터</span></Link>

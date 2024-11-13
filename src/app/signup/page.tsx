@@ -1,8 +1,14 @@
 'use client';
 
-import Image from "next/image";
 import { useState } from "react";
 import axios from "axios";
+import { useRouter } from 'next/navigation';
+import { loginCheck } from '@/utils/auth';
+
+const API_URLS = {
+  CHECK_USER_ID: "api/user/check/userId",
+  SIGNUP: "api/user/signup"
+} as const;
 
 export default function SignUp() {
   const [userId, setUserId] = useState<string>("");
@@ -12,32 +18,55 @@ export default function SignUp() {
   const [nickname, setNickname] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [isUserIdChecked, setIsUserIdChecked] = useState<boolean>(false);
+  const router = useRouter();
+
+  // 로그인 체크
+  const isLogin = async () => {
+    let result = await loginCheck();
+    if(result) {
+      router.push('/');
+    }
+  }
+  isLogin();
+  
+
+  const validateForm = (params: SignUpParams): string | null => {
+    if (Object.values(params).some(value => value === "")) {
+      return "모든 항목을 입력해주세요.";
+    }
+    if (!isUserIdChecked) {
+      return "아이디 중복 확인을 해주세요.";
+    }
+    if (password !== confirmPassword) {
+      return "비밀번호가 일치하지 않습니다.";
+    }
+    return null;
+  };
+
 
   const handleCheckUserId = async () => {
-    if(userId.length < 4) {
+    if (userId.length < 4) {
       alert("유저 아이디는 4자 이상이어야 합니다.");
       return;
     }
 
-    // Check if the user ID already exists
-    // api call
-    let url = "api/user/check/userId?userId=" + userId;
     try {
-      let ret = await axios.get(url);
-
-      if(ret.data.retCode === 200) {
-        alert("이미 사용중인 아이디입니다.");
-      }
-      else {
-        alert("사용 가능한 아이디입니다.");
+      const ret = await axios.get(`${API_URLS.CHECK_USER_ID}?userId=${userId}`);
+      const message = ret.data.retCode === 200 
+        ? "이미 사용중인 아이디입니다."
+        : "사용 가능한 아이디입니다.";
+      
+      alert(message);
+      if (ret.data.retCode !== 200) {
         setIsUserIdChecked(true);
       }
-    }
-    catch(err) {
+    } catch (err) {
+      alert("아이디 중복 확인 중 오류가 발생했습니다.");
       console.error(err);
     }
-    
-  }
+  };
+
+
   interface SignUpParams {
     userId: string;
     username: string;
@@ -46,56 +75,40 @@ export default function SignUp() {
     nickname: string;
     phoneNumber: string;
   }
+  
   const handleSignUp = async () => {
-    let params: SignUpParams = {
-      userId: userId,
-      username: username,
-      password: password,
+    const params: SignUpParams = {
+      userId,
+      username,
+      password,
       passwordConfirm: confirmPassword,
-      nickname: nickname,
-      phoneNumber: phoneNumber
-    }
-    for(let key in params) {
-      if(params[key as keyof SignUpParams] === "") {
-        alert("모든 항목을 입력해주세요.");
-        return;
-      }
-    }
+      nickname,
+      phoneNumber
+    };
 
-    if(!isUserIdChecked) {
-      alert("아이디 중복 확인을 해주세요.");
+    const validationError = validateForm(params);
+    if (validationError) {
+      alert(validationError);
       return;
     }
-
-    if(password !== confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다.");
-      return;
-    }
-
-    
-    // api call
-    let url = "api/user/signup";
 
     try {
-      let ret = await axios.post(url, params, {
-        headers: {
-          "Content-Type": "application/json"
-        }
+      const ret = await axios.post(API_URLS.SIGNUP, params, {
+        headers: { "Content-Type": "application/json" }
       });
 
-      if(ret.data.retCode === 200) {
+      if (ret.data.retCode === 200) {
         alert("회원가입이 완료되었습니다.");
+        router.push('/login'); // 회원가입 성공 시 로그인 페이지로 이동
+      } else {
+        alert(ret.data.retMsg || "회원가입 중 오류가 발생했습니다.");
       }
-      else {
-        console.error(ret.data);
-        alert(ret.data.retMsg);
-      }
-    }
-    catch(err) {
+    } catch (err) {
+      alert("회원가입 중 오류가 발생했습니다.");
       console.error(err);
     }
+  };
 
-  }
 
   return (
     <section className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
